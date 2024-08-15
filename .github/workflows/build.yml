@@ -1,0 +1,16 @@
+name: Build and test
+on: 
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4
+      - name: Build application
+        run: bash .github/scripts/build-app.sh
+      - name: Test application
+        run: bash .github/scripts/test-app.sh
