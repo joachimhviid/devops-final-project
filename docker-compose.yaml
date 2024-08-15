@@ -6,7 +6,8 @@ services:
   backend:
     image: ghcr.io/joachimhviid/fortune-cookie-backend:latest
     environment:
-      - REDIS_DNS=redis
+      - REDIS_DNS=redis-server
+      - REDIS_PORT=6379
     ports:
       - "9000:9000"
     depends_on:
