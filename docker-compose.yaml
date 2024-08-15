@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   redis-server:
     image: redis:6.2
     container_name: redis-server
 
   backend:
-    build: ghcr.io/joachimhviid/fortune-cookie-backend:latest
+    image: ghcr.io/joachimhviid/fortune-cookie-backend:latest
     environment:
       - REDIS_DNS=redis
     ports:
@@ -15,7 +13,7 @@ services:
       - redis-server
 
   frontend:
-    build: ghcr.io/joachimhviid/fortune-cookie-frontend:latest
+    image: ghcr.io/joachimhviid/fortune-cookie-frontend:latest
     environment:
       - BACKEND_DNS=backend
       - BACKEND_PORT=9000
