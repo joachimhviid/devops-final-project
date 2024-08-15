@@ -1,9 +1,9 @@
 name: Main workflow
 on: 
   push:
-  # pull_request: 
-  #   branches:
-  #     - main
+  pull_request: 
+    branches:
+      - main
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -24,9 +24,8 @@ jobs:
           cd ../backend/
           go test
           cd ..
-
-      # - name: Upload a Build Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: code
-      #     path: .
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: code
+          path: .
