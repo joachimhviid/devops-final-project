@@ -11,9 +11,9 @@ jobs:
       - name: Clone down repository
         uses: actions/checkout@v4
       - name: Build application
-        run: ci/build-app.sh
+        run: .github/scripts/build-app.sh
       - name: Test application
-        run: ci/test-app.sh
+        run: .github/scripts/test-app.sh
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
