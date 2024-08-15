@@ -11,11 +11,20 @@ jobs:
       - name: Clone down repository
         uses: actions/checkout@v4
       - name: Build application
-        run: .github/scripts/build-app.sh
-        shell: bash
+        run: |
+          cd frontend/
+          go build
+          cd ../backend/
+          go build
+          cd ..
       - name: Test application
-        run: .github/scripts/test-app.sh
-        shell: bash
+        run: |
+          cd frontend/
+          go test
+          cd ../backend/
+          go test
+          cd ..
+
       # - name: Upload a Build Artifact
       #   uses: actions/upload-artifact@v4
       #   with:
