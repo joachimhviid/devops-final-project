@@ -13,19 +13,9 @@ jobs:
       - name: Clone down repository
         uses: actions/checkout@v4
       - name: Build application
-        run: |
-          cd frontend/
-          go build
-          cd ../backend/
-          go build
-          cd ..
+        run: bash .github/scripts/build-app.sh
       - name: Test application
-        run: |
-          cd frontend/
-          go test
-          cd ../backend/
-          go test
-          cd ..
+        run: bash .github/scripts/test-app.sh
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
