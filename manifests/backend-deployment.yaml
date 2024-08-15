@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    run: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: backend
+  template:
+    metadata:
+      labels:
+        run: backend
+    spec:
+      containers:
+      - name: fortune-cookie-backend
+        image: ghcr.io/joachimhviid/fortune-cookie-backend:latest
+#        env:
+#          - name: REDIS_DNS
+#            value: redis
