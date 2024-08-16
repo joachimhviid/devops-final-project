@@ -17,14 +17,14 @@ jobs:
       - name: Build backend
         run: go build
         working-directory: backend
-      - name: Build backend
+      - name: Test backend
         run: go test
         working-directory: backend
 
       - name: Build frontend
         run: go build
         working-directory: frontend
-      - name: Build frontend
+      - name: Test frontend
         run: go test
         working-directory: frontend
 
