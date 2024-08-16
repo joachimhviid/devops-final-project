@@ -1,0 +1,77 @@
+name: Deploy application
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone down repository
+        uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '^1.20'
+          
+      - name: Build backend
+        run: go build
+        working-directory: backend
+      - name: Build backend
+        run: go test
+        working-directory: backend
+
+      - name: Build frontend
+        run: go build
+        working-directory: frontend
+      - name: Build frontend
+        run: go test
+        working-directory: frontend
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: code
+          path: .
+
+  Docker-image:
+    runs-on: ubuntu-latest
+    needs: [Build]
+    permissions:
+      packages: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with: 
+          name: code 
+          path: .
+      - name: Log in to registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push Docker image backend
+        uses: docker/build-push-action@v4
+        with:
+          context: backend
+          push: true
+          tags: ${{ github.actor }}/fortune-cookie-backend:latest,${{ github.actor }}/fortune-cookie-backend:${{ github.sha }}
+      - name: Build and push Docker image frontend
+        uses: docker/build-push-action@v4
+        with:
+          context: frontend
+          push: true
+          tags: ${{ github.actor }}/fortune-cookie-frontend:latest,${{ github.actor }}/fortune-cookie-frontend:${{ github.sha }}
+
+  Deploy:
+    runs-on: ubuntu-latest
+    needs: ['Build', 'Docker-image']
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with: 
+          name: code 
+          path: .
+      - run: echo "${{ secrets.KUBECONFIG }}" | base64 -d > kubeconfig
+      - run: kubectl --kubeconfig kubeconfig apply -f ./manifests
