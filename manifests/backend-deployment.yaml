@@ -17,6 +17,8 @@ spec:
       containers:
       - name: fortune-cookie-backend
         image: ghcr.io/joachimhviid/fortune-cookie-backend:latest
-#        env:
-#          - name: REDIS_DNS
-#            value: redis
+        env:
+        - name: REDIS_DNS
+          value: redis-service
+        - name: REDIS_PORT
+          value: "6379"
