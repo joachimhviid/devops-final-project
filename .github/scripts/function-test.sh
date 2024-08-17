@@ -1,46 +1,25 @@
 #!/bin/bash
-kubectl apply -f manifests/
-
-# Get the JSON output from kubectl get nodes
-nodes_json_output=$(kubectl get nodes -o json)
-
-# Get external ip from JSON format
-external_ips=$(echo "$nodes_json_output" | jq -r '.items[].status.addresses[] | select(.type == "ExternalIP") | .address')
-
-# check
-if [ -z "$external_ips" ]; then
-    echo "No external IPs found."
-else
-    echo "External IPs of the nodes:"
-    echo "$external_ips"
-fi
-
-# Get the JSON output from kubectl get services
-service_json_output=$(kubectl get services -o json)
-
-# Get port from service
-SERVICE_NAME="frontend"
-service_port=$( echo $service_json_output | jq -e ".items[] | select(.metadata.name | contains(\"$SERVICE_NAME\")).spec.ports[0].nodePort")
-
-#check
-if [ -z "$service_port" ]; then
-    echo "No port found on service: $SERVICE_NAME "
-fi
-
-# Get the first external ip from the list
-external_ip=$(echo "$external_ips" | head -n 1) 
-
-# Check connection
-URL=$external_ip:$service_port
+docker compose up -d --build
+# Check frontend is ready
+URL=http://localhost:8080
 timeout 10 sh -c "until curl '${URL}'; do echo 'Sleeping...'; sleep 1; done"
 EXIT_CODE="$?"
 
-# Clean-up with exit code if fail
-kubectl delete -f manifests/
+# Check backend is ready
+URL_2=http://localhost:9000/fortunes
+timeout 10 sh -c "until curl '${URL_2}'; do echo 'Sleeping...'; sleep 1; done"
 EXIT_CODE_2="$?"
+
+# Clean-up
+docker compose down
+
+# exit code for frontend curl check
+if [ "$EXIT_CODE" -ne 0 ]; then
+    echo "failed connection to $URL"
+    exit "$EXIT_CODE"
+fi
+# exit code for backend curl check
 if [ "$EXIT_CODE_2" -ne 0 ]; then
+    echo "failed connection to $URL_2"
     exit "$EXIT_CODE_2"
 fi
-
-#exit code for curl
-exit "$EXIT_CODE"
