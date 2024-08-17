@@ -40,9 +40,16 @@ jobs:
           name: code
           path: .
 
+  Functional-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run function test
+        run: bash .github/scripts/function-test.sh
+
   Docker-image:
     runs-on: ubuntu-latest
-    needs: [Build]
+    needs: ['Build', 'Functional-test']
     permissions:
       packages: write
     steps:
@@ -58,7 +65,7 @@ jobs:
 
   Deploy:
     runs-on: ubuntu-latest
-    needs: ['Build', 'Docker-image']
+    needs: ['Docker-image']
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4

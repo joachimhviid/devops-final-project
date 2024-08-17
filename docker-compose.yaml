@@ -4,7 +4,7 @@ services:
     container_name: redis-server
 
   backend:
-    image: ghcr.io/joachimhviid/fortune-cookie-backend:latest
+    build: backend
     environment:
       - REDIS_DNS=redis-server
       - REDIS_PORT=6379
@@ -14,7 +14,7 @@ services:
       - redis-server
 
   frontend:
-    image: ghcr.io/joachimhviid/fortune-cookie-frontend:latest
+    build: frontend
     environment:
       - BACKEND_DNS=backend
       - BACKEND_PORT=9000
