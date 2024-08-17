@@ -15,4 +15,7 @@ for i in {1..30}; do
   sleep 1
 done
 
+curl -f http://localhost:8080 || exit 1
+curl -f http://localhost:9000/fortunes || exit 1
+
 docker compose down
