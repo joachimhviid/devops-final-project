@@ -29,9 +29,7 @@ var myClient = &http.Client{Timeout: 10 * time.Second}
 
 func HealthzHandler(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
-    if _, err := io.WriteString(w, "healthy"); err != nil {
-        log.Println("Error writing response:", err)
-    }
+    io.WriteString(w, "healthy")
 }
 
 func main() {
@@ -47,13 +45,10 @@ func main() {
         }
 
         f := new(fortune)
-        if err := json.NewDecoder(resp.Body).Decode(&f); err != nil {
-            log.Println("Error decoding JSON:", err)
-            http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
-            return
-        }
+        json.NewDecoder(resp.Body).Decode(f)
 
         fmt.Fprint(w, f.Message)
+        return
     })
 
     http.HandleFunc("/api/all", func (w http.ResponseWriter, r *http.Request) {
@@ -65,11 +60,7 @@ func main() {
         }
 
         fortunes := new([]fortune)
-        if err := json.NewDecoder(resp.Body).Decode(fortunes); err != nil {
-            log.Println("Error decoding JSON:", err)
-            http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
-            return
-        }
+        json.NewDecoder(resp.Body).Decode(fortunes)
 
         tmpl, err := template.ParseFiles("./templates/fortunes.html")
 
@@ -79,10 +70,8 @@ func main() {
             return
         }
 
-        if err := tmpl.Execute(w, fortunes); err != nil {
-            log.Println("Error executing template:", err)
-            http.Error(w, "Error executing template", http.StatusInternalServerError)
-        }
+        tmpl.Execute(w, fortunes)
+        return
     })
 
     http.HandleFunc("/api/add", func (w http.ResponseWriter, r *http.Request) {
@@ -93,11 +82,7 @@ func main() {
         }
 
         f := new(newFortune)
-        if err := json.NewDecoder(r.Body).Decode(f); err != nil {
-            log.Println("Error decoding JSON:", err)
-            http.Error(w, "Error decoding JSON", http.StatusInternalServerError)
-            return
-        }
+        json.NewDecoder(r.Body).Decode(f)
 
         var postUrl = fmt.Sprintf("http://%s:%s/fortunes", BACKEND_DNS, BACKEND_PORT)
         var jsonStr = []byte(fmt.Sprintf(`{"id": "%d", "message": "%s"}`, rand.Intn(10000), f.Message))
@@ -110,6 +95,8 @@ func main() {
         }
 
         fmt.Fprint(w, "Cookie added!")
+
+        return
     })
 
     http.Handle("/", http.FileServer(http.Dir("./static")))
